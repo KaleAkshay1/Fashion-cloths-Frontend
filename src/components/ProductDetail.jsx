@@ -74,9 +74,8 @@ function ProductDetail({ product, colors }) {
             {product.product_varients
               .filter((ele) => ele.color !== color)
               .map((ele, ind) => (
-                <NavLink to={`/detail/${product._id}/${ele.color}`}>
+                <NavLink key={ind} to={`/detail/${product._id}/${ele.color}`}>
                   <img
-                    key={ind}
                     className="w-14 rounded-sm cursor-pointer"
                     onClick={() => changeColor(ele.color)}
                     src={ele.images[0]}
