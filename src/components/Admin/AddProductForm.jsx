@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { profileUnCheck } from "../../shope/profile";
 import { FaPlus } from "react-icons/fa";
 import { AiFillDelete } from "react-icons/ai";
@@ -7,9 +7,9 @@ import axios from "axios";
 import { useLoaderData } from "react-router-dom";
 
 function AddProductForm() {
-  const categoryData = useLoaderData();
-  const subCategory = categoryData.data.data.subCategory;
-  const color = categoryData.data.data.color;
+  const categoryData = useSelector((state) => state.optionData);
+  const subCategory = categoryData.subCategory;
+  const color = categoryData.color;
   const [catChange, setCatChange] = useState(subCategory.men); //
   const [kids, setKids] = useState(false); //
   const [thirdCat, setThirdCat] = useState([]); //
@@ -31,8 +31,8 @@ function AddProductForm() {
       },
     ],
   });
-  const category = categoryData.data.data.category;
-  const size = categoryData.data.data.size;
+  const category = categoryData.category;
+  const size = categoryData.size;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -149,7 +149,6 @@ function AddProductForm() {
 
   const handelSubmit = async (e) => {
     e.preventDefault();
-    console.log(data);
 
     try {
       const formData = new FormData();
@@ -209,9 +208,8 @@ function AddProductForm() {
           },
         ],
       });
-      console.log("Product created successfully:", response.data);
     } catch (error) {
-      console.error("Error creating product:", error.message);
+      alert("Error creating product:", error.message);
     }
   };
 

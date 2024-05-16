@@ -11,7 +11,7 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import Home from "./components/Home.jsx";
-import Cart from "./components/Cart.jsx";
+import Cart from "./components/Card/Cart.jsx";
 import Login from "./components/User/Login.jsx";
 import Register from "./components/User/Register.jsx";
 import EnterOtp from "./components/User/EnterOtp.jsx";
@@ -20,27 +20,27 @@ import Admin from "./components/Admin/Admin.jsx";
 import AddProductForm from "./components/Admin/AddProductForm.jsx";
 import axios from "axios";
 import FindProduct from "./components/FindProduct.jsx";
+import Bag from "./components/OrderDetails/Bag.jsx";
+import Wishlist from "./components/OrderDetails/Wishlist.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="/" element={<Home />} />,
-      <Route path="/detail/:id/:color" element={<FindProduct />}></Route>
-      <Route path="/men" element={<Product cat="men" />} />,
-      <Route path="/women" element={<Product cat="women" />} />,
-      <Route path="/kids" element={<Product cat="kids" />} />,
-      <Route path="/cart" element={<Cart />} />,
+      <Route path="/:cat/detail/:id/:color" element={<FindProduct />}></Route>
+      <Route path="/men" element={<Product cat="men" />} />
+      ,
+      <Route path="/women" element={<Product cat="women" />} />
+      ,
+      <Route path="/kids" element={<Product cat="kids" />} />
+      ,
+      <Route path="/cart" element={<Bag />} />,
+      <Route path="/wishlist" element={<Wishlist />} />,
       <Route path="/enterOtp" element={<EnterOtp />} />,
       <Route path="/login" element={<Login />} />,
       <Route path="/register" element={<Register />} />,
       <Route path="/admin" element={<Admin />}>
-        <Route
-          path="/admin"
-          element={<AddProductForm />}
-          loader={async () => {
-            return await axios("/api/product/aceess-cat");
-          }}
-        />
+        <Route path="/admin" element={<AddProductForm />} />
         {/* <Route path="/admin/list" element={<AddP />} /> */}
       </Route>
       ,

@@ -1,16 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa6";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { BsFillHandbagFill } from "react-icons/bs";
 import { FaHeart } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { addDataInUserOrders } from "../shope/userOrders";
+import { RiDeleteBinFill } from "react-icons/ri";
 
 function ProductDetail({ product, colors }) {
+  const user = useSelector((state) => state.user);
+  const userOrder = useSelector((state) => state.userOrder);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [color, setColor] = useState(colors);
   const [selectedColor, setSelectedColor] = useState(
     product.product_varients.filter((ele) => ele.color === color)[0]
   );
   const [size, setSize] = useState(Object.keys(selectedColor.sizes));
   const [imageIndex, setImageIndex] = useState(0);
+  const [whishlistButton, setWhishlistButton] = useState(false);
+
+  useEffect(() => {
+    setWhishlistButton(false);
+    if (Object.keys(userOrder).length) {
+      userOrder?.whishlist.forEach((ele, ind) => {
+        if (ele.productId === product._id && ele.color === color) {
+          setWhishlistButton(true);
+        }
+      });
+    }
+  }, [color, whishlistButton]);
+
   const changeColor = (color) => {
     setColor(color);
     setSelectedColor(
@@ -18,6 +39,35 @@ function ProductDetail({ product, colors }) {
     );
     setImageIndex(0);
   };
+  const addWhishlist = async () => {
+    if (Object.keys(user).length) {
+      try {
+        const data = await axios(
+          `/api/orders/add-whishlist/${product._id}/${color}`
+        );
+        dispatch(addDataInUserOrders(data?.data?.data));
+        setWhishlistButton(true);
+      } catch (error) {
+        console.log(error.message);
+      }
+    } else {
+      alert("Plz login first");
+      navigate("/login");
+    }
+  };
+
+  const removeWhishlist = async () => {
+    try {
+      const data = await axios(
+        `/api/orders/remove-product-in-wishlist/${product._id}/${color}`
+      );
+      dispatch(addDataInUserOrders(data?.data?.data));
+      setWhishlistButton(false);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   return (
     <div className=" h-[90vh] overflow-hidden m-5 grid grid-cols-12 gap-2">
       <div className="col-span-1 h-full overflow-hidden overflow-y-auto product-detail-images  flex flex-col gap-3">
@@ -74,7 +124,10 @@ function ProductDetail({ product, colors }) {
             {product.product_varients
               .filter((ele) => ele.color !== color)
               .map((ele, ind) => (
-                <NavLink key={ind} to={`/detail/${product._id}/${ele.color}`}>
+                <NavLink
+                  key={ind}
+                  to={`/${product.category}/detail/${product._id}/${ele.color}`}
+                >
                   <img
                     className="w-14 rounded-sm cursor-pointer"
                     onClick={() => changeColor(ele.color)}
@@ -96,7 +149,7 @@ function ProductDetail({ product, colors }) {
                 selectedColor.sizes[ele] > 0 && (
                   <input
                     key={ind}
-                    className="inline outline-none cursor-pointer p-2 rounded-[50%] w-12 h-12 text-center text-xl bg-slate-100 dark:bg-slate-600 text-slate-800 dark:text-slate-100 border border-slate-600 dark:border-slate-100 hover:border-pink-600 hover:text-pink-600
+                    className="inline outline-none cursor-pointer p-2 rounded-[50%] w-10 h-10 text-center text-xl bg-slate-100 dark:bg-slate-600 text-slate-800 dark:text-slate-100 border border-slate-600 dark:border-slate-100 hover:border-pink-600 hover:text-pink-600
               dark:hover:text-pink-400 dark:hover:border-pink-400 "
                     type="text"
                     readOnly
@@ -106,14 +159,28 @@ function ProductDetail({ product, colors }) {
             )}
           </div>
           <div className="my-5 flex gap-5">
-            <div className="flex w-[40%] gap-3 items-center justify-center text-white py-3 bg-pink-600 rounded-md hover:bg-pink-700 font-semibold text-center">
+            <div className="flex w-[40%] gap-3 items-center justify-center hover:text-white text-pink-600 py-3 bg-transparent border-2 border-pink-600 rounded-md hover:bg-pink-700 font-semibold text-center cursor-pointer">
               <BsFillHandbagFill className="inline-block" />{" "}
               <button>ADD TO CART</button>
             </div>
-            <div className="flex w-[40%] gap-3 items-center justify-center text-white py-3 bg-purple-600 rounded-md hover:bg-purple-700 font-semibold text-center">
-              <FaHeart />
-              <button>WHISHLIST</button>
-            </div>
+
+            {whishlistButton ? (
+              <div
+                className="flex w-[60%] gap-3 items-center justify-center text-red-700 hover:text-white py-2 bg-transparent border-2 border-red-700 rounded-md hover:bg-red-700 font-semibold text-center cursor-pointer"
+                onClick={removeWhishlist}
+              >
+                <RiDeleteBinFill />
+                <button>REMOVE FROM WHISHLIST</button>
+              </div>
+            ) : (
+              <div
+                className="flex w-[40%] gap-3 items-center justify-center text-purple-600 hover:text-white py-3 bg-transparent border-2 border-purple-600 rounded-md hover:bg-purple-700 font-semibold text-center cursor-pointer"
+                onClick={addWhishlist}
+              >
+                <FaHeart />
+                <button>WHISHLIST</button>
+              </div>
+            )}
           </div>
           <hr />
           <p className="my-3 text-slate-900 dark:text-slate-50 font-semibold">
