@@ -3,17 +3,12 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { RxCross2 } from "react-icons/rx";
 import { addDataInWishlist } from "../../shope/whishlist";
-import { BsHandbagFill } from "react-icons/bs";
-import { toast } from "react-toastify";
-import { addDataInBag } from "../../shope/bag";
-import { addItemToWhishlist } from "../../../../backend/src/controllers/whishlist.controller";
 
 function BigCards({ product }) {
   const [imageIndex, setImageIndex] = useState(0);
   const [forTimeout, setForTimeout] = useState([]);
-  const [size, setSize] = useState(null);
+  const whishlist = useSelector((state) => state.whishlist);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -30,6 +25,25 @@ function BigCards({ product }) {
     await Promise.all(forTimeout.map((ele) => clearTimeout(ele)));
     setForTimeout([]);
     setImageIndex(0);
+  };
+
+  const addToWishlist = async () => {
+    try {
+      const data = await axios(
+        `/api/whishlist/add-item-in-whishlist/${product._id}`
+      );
+      dispatch(addDataInWishlist(data.data.data));
+    } catch (error) {
+      if (error.response.status === 401) {
+        toast("🥷🏻 Plz login first before adding product in card or whishlist", {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "dark",
+          pauseOnHover: false,
+        });
+        navigate("/login");
+      }
+    }
   };
 
   const removeFromWishlist = async () => {
@@ -58,33 +72,13 @@ function BigCards({ product }) {
     }
   };
 
-  const addItemToCart = async () => {
-    try {
-      if (size) {
-        const data = await axios(
-          `/api/whishlist/move-to-cart/${product._id}/${size}`
-        );
-        if (data.data.data) {
-          console.log(data.data.data);
-          // dispatch(addDataInBag(data.data.data.cart));
-          // dispatch(addItemToWhishlist(data.data.data.whishlist));
-          toast.success("Item added in cart succesfully");
-        }
-      } else {
-        toast.error("Plz select size first");
-      }
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
   return (
     <>
-      <div className="w-[22%] p-2 relative rounded-xl overflow-hidden  dark:bg-slate-950 bg-transparent ">
-        <div>
+      <div className="w-[250px] p-2 relative h-[360px] rounded-xl overflow-hidden  max-w-sm bg-white border dark:border-slate-800 dark:shadow-slate-800 dark:shadow-sm shadow-md dark:bg-slate-950 ">
+        <div className="relative">
           <NavLink to={`/:${product.category}/detail/${product._id}`}>
             <img
-              className="h-[250px] w-full shadow-md cursor-pointer rounded-md"
+              className="h-[250px] w-full cursor-pointer rounded-md"
               src={product.images.all[imageIndex]}
               alt="product image"
               onMouseEnter={imageScrolling}
@@ -92,9 +86,8 @@ function BigCards({ product }) {
             />
           </NavLink>
         </div>
-
-        <div className="cursor-pointer flex flex-col gap-1">
-          <NavLink to={`/:${product.category}/detail/${product._id}`}>
+        <NavLink to={`/:${product.category}/detail/${product._id}`}>
+          <div className="cursor-pointer flex flex-col gap-1">
             <h5 className="text-xl overflow-hidden  truncate dark:font-semibold font-bold tracking-tight text-gray-800 dark:text-white text-center">
               {product.name}
             </h5>
@@ -113,47 +106,23 @@ function BigCards({ product }) {
                 </>
               )}
             </div>
-            {product.priceInfo.isOnSale && (
-              <div className="absolute top-3 text-white text-center -left-9 px-10 bg-purple-900 -rotate-45">
-                -{product.priceInfo.discountLabel}
-              </div>
-            )}
-          </NavLink>
-
-          <div className="py-2 flex gap-2 justify-around flex-wrap">
-            {Object.keys(product.sizes).map(
-              (ele, ind) =>
-                product.sizes[ele] > 0 && (
-                  <input
-                    key={ind}
-                    onClick={(e) => setSize(e.target.value)}
-                    className={`inline outline-none cursor-pointer p-1 rounded-[50%] w-8 h-8 text-center text-sm border dark:bg-slate-600  hover:border-pink-600 hover:text-pink-600
-          dark:hover:text-pink-400 dark:hover:border-pink-400 ${
-            size === ele
-              ? "border-pink-600 text-pink-600"
-              : "border-slate-600 text-slate-800 dark:text-slate-100  dark:border-slate-100"
-          }`}
-                    type="text"
-                    readOnly
-                    value={ele}
-                  />
-                )
-            )}
           </div>
-          <button
-            className="bg-blue-600 rounded p-1 flex items-center gap-3 justify-center text-white"
-            onClick={addItemToCart}
-          >
-            <BsHandbagFill />{" "}
-            <span className="font-semibold"> Move To Bag</span>
-          </button>
-        </div>
-
+          {product.priceInfo.isOnSale && (
+            <div className="absolute top-3 text-white text-center -left-9 px-10 bg-purple-900 -rotate-45">
+              -{product.priceInfo.discountLabel}
+            </div>
+          )}
+        </NavLink>
         <div className="absolute top-3 right-3 cursor-pointer hover:bg-slate-200  rounded p-2">
-          <RxCross2
-            className="font-bold text-xl"
-            onClick={removeFromWishlist}
-          />
+          {whishlist.some((ele) => ele === product._id) ? (
+            <FaHeart
+              className="text-lg"
+              color="red"
+              onClick={removeFromWishlist}
+            />
+          ) : (
+            <FaRegHeart className="text-lg" onClick={addToWishlist} />
+          )}
         </div>
       </div>
     </>

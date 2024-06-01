@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { profileUnCheck } from "../shope/profile";
-import Cart from "./Card/Cart.jsx";
 import ManageGap from "./ManageGap";
 import axios from "axios";
 import { newProducts } from "../shope/product";

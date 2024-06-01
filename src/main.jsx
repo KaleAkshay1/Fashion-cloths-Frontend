@@ -11,7 +11,6 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import Home from "./components/Home.jsx";
-import Cart from "./components/Card/Cart.jsx";
 import Login from "./components/User/Login.jsx";
 import Register from "./components/User/Register.jsx";
 import EnterOtp from "./components/User/EnterOtp.jsx";
@@ -21,13 +20,19 @@ import AddProductForm from "./components/Admin/AddProductForm.jsx";
 import axios from "axios";
 import FindProduct from "./components/FindProduct.jsx";
 import Bag from "./components/OrderDetails/Bag.jsx";
-import Wishlist from "./components/OrderDetails/Wishlist.jsx";
+import Wishlists from "./components/OrderDetails/Wishlists.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="/" element={<Home />} />,
-      <Route path="/:cat/detail/:id/:color" element={<FindProduct />}></Route>
+      <Route
+        path="/:cat/detail/:id"
+        element={<FindProduct />}
+        loader={async ({ params }) => {
+          return axios(`/api/items/see-detail-of-product/${params.id}`);
+        }}
+      ></Route>
       <Route path="/men" element={<Product cat="men" />} />
       ,
       <Route path="/women" element={<Product cat="women" />} />
@@ -35,7 +40,14 @@ const router = createBrowserRouter(
       <Route path="/kids" element={<Product cat="kids" />} />
       ,
       <Route path="/cart" element={<Bag />} />,
-      <Route path="/wishlist" element={<Wishlist />} />,
+      <Route
+        path="/wishlist"
+        element={<Wishlists />}
+        loader={async () => {
+          return await axios("/api/whishlist/access-items-from-whishlist");
+        }}
+      />
+      ,
       <Route path="/enterOtp" element={<EnterOtp />} />,
       <Route path="/login" element={<Login />} />,
       <Route path="/register" element={<Register />} />,

@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { FaRegHeart, FaHeart } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import { RxCross2 } from "react-icons/rx";
-import { addDataInWishlist } from "../../shope/whishlist";
+import React, { useState } from "react";
 import { BsHandbagFill } from "react-icons/bs";
+import { RxCross2 } from "react-icons/rx";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { addDataInWishlist } from "../../shope/whishlist";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { addDataInBag } from "../../shope/bag";
-import { addItemToWhishlist } from "../../../../backend/src/controllers/whishlist.controller";
 
-function BigCards({ product }) {
+function Wishlistcard({ product }) {
   const [imageIndex, setImageIndex] = useState(0);
   const [forTimeout, setForTimeout] = useState([]);
   const [size, setSize] = useState(null);
@@ -26,6 +25,7 @@ function BigCards({ product }) {
       setForTimeout((pre) => [...pre, timeout]);
     }
   };
+
   const stopScrolling = async () => {
     await Promise.all(forTimeout.map((ele) => clearTimeout(ele)));
     setForTimeout([]);
@@ -62,13 +62,12 @@ function BigCards({ product }) {
     try {
       if (size) {
         const data = await axios(
-          `/api/whishlist/move-to-cart/${product._id}/${size}`
+          `/api/cart/add-data-from-cart/${product._id}/${size}`
         );
         if (data.data.data) {
-          console.log(data.data.data);
-          // dispatch(addDataInBag(data.data.data.cart));
-          // dispatch(addItemToWhishlist(data.data.data.whishlist));
-          toast.success("Item added in cart succesfully");
+          console.log(data);
+          dispatch(addDataInBag(data.data.data));
+          toast.success(data.data.message);
         }
       } else {
         toast.error("Plz select size first");
@@ -128,11 +127,11 @@ function BigCards({ product }) {
                     key={ind}
                     onClick={(e) => setSize(e.target.value)}
                     className={`inline outline-none cursor-pointer p-1 rounded-[50%] w-8 h-8 text-center text-sm border dark:bg-slate-600  hover:border-pink-600 hover:text-pink-600
-          dark:hover:text-pink-400 dark:hover:border-pink-400 ${
-            size === ele
-              ? "border-pink-600 text-pink-600"
-              : "border-slate-600 text-slate-800 dark:text-slate-100  dark:border-slate-100"
-          }`}
+    dark:hover:text-pink-400 dark:hover:border-pink-400 ${
+      size === ele
+        ? "border-pink-600 text-pink-600"
+        : "border-slate-600 text-slate-800 dark:text-slate-100  dark:border-slate-100"
+    }`}
                     type="text"
                     readOnly
                     value={ele}
@@ -144,8 +143,7 @@ function BigCards({ product }) {
             className="bg-blue-600 rounded p-1 flex items-center gap-3 justify-center text-white"
             onClick={addItemToCart}
           >
-            <BsHandbagFill />{" "}
-            <span className="font-semibold"> Move To Bag</span>
+            <BsHandbagFill /> <span className="font-semibold"> Add To Bag</span>
           </button>
         </div>
 
@@ -160,4 +158,4 @@ function BigCards({ product }) {
   );
 }
 
-export default BigCards;
+export default Wishlistcard;

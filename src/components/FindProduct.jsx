@@ -1,19 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import ProductDetail from "./ProductDetail";
+import { useLoaderData, useParams } from "react-router-dom";
+import ItemsDetail from "./ItemsDetail";
 
 function FindProduct() {
-  const { id, color } = useParams();
-  const products = useSelector((state) => state.product);
+  const { id } = useParams();
+  const data = useLoaderData();
+  const [item, setItem] = useState(data?.data?.data);
+
+  useEffect(() => {
+    setItem(data?.data?.data);
+  }, [data]);
 
   return (
     <div>
-      {products
-        .filter((ele) => ele._id === id)
-        .map((ele) => (
-          <ProductDetail key={ele._id} product={ele} colors={color} />
-        ))}
+      <ItemsDetail product={item} />
     </div>
   );
 }

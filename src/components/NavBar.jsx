@@ -6,8 +6,6 @@ import { BsFillHandbagFill } from "react-icons/bs";
 import ProfileDropdown from "./ProfileDropdown";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
-import { foundUser, notFoundUser } from "../shope/user";
-import { addDataInUserOrders } from "../shope/userOrders";
 import { changeDropdownStateOfProfile, profileUnCheck } from "../shope/profile";
 import { modeChange } from "../shope/mode";
 import axios from "axios";
@@ -15,23 +13,14 @@ import { newProducts } from "../shope/product";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const profileDropdown = useSelector((state) => state.profileDropdown);
   const mode = useSelector((store) => store.darkMode);
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
-
-  const checkUser = async () => {
-    try {
-      const pData = await axios("/api/product/fetch-product-data");
-      dispatch(newProducts(pData?.data?.data));
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+  const whishlist = useSelector((state) => state.whishlist);
+  const bag = useSelector((state) => state.bag);
 
   useEffect(() => {
-    checkUser();
     if (Object.keys(user).length === 0) {
       dispatch(profileUnCheck());
     }
@@ -127,7 +116,7 @@ const Navbar = () => {
           <div className="flex items-center gap-4">
             {/* Dark Mode Toggle */}
             <button onClick={changeMode} className="text-xl focus:outline-none">
-              {darkMode ? <MdDarkMode /> : <MdSunny />}
+              {!mode ? <MdDarkMode /> : <MdSunny />}
             </button>
 
             {/* Notifications */}
@@ -138,7 +127,7 @@ const Navbar = () => {
                     <FaHeart className="ml-2" />
                     {/* Notification Badge */}
                     <span className="absolute  -top-2 -right-2 bg-red-500 text-xs text-white rounded-full w-4 h-4 flex items-center justify-center">
-                      0
+                      {whishlist.length}
                     </span>
                     <span className="text-[10px] right-0 left-0 top-4 absolute">
                       Whishlist
@@ -151,7 +140,7 @@ const Navbar = () => {
 
                     {/* Notification Badge */}
                     <span className="absolute -top-2 -right-2 bg-red-500 text-xs text-white rounded-full w-4 h-4 flex items-center justify-center">
-                      0
+                      {bag.length}
                     </span>
                     <span className="text-[10px] text-center absolute">
                       Bag
