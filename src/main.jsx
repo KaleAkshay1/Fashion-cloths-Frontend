@@ -21,25 +21,27 @@ import axios from "axios";
 import FindProduct from "./components/FindProduct.jsx";
 import Bag from "./components/OrderDetails/Bag.jsx";
 import Wishlists from "./components/OrderDetails/Wishlists.jsx";
+import BagItems from "./components/OrderDetails/BagItems.jsx";
+import OrderHistory from "./components/OrderDetails/OrderHistory.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      <Route path="/" element={<Home />} />,
+      <Route path="/" element={<Home />} />
       <Route
         path="/:cat/detail/:id"
         element={<FindProduct />}
         loader={async ({ params }) => {
           return axios(`/api/items/see-detail-of-product/${params.id}`);
         }}
-      ></Route>
+      />
       <Route path="/men" element={<Product cat="men" />} />
-      ,
       <Route path="/women" element={<Product cat="women" />} />
-      ,
-      <Route path="/kids" element={<Product cat="kids" />} />
-      ,
-      <Route path="/cart" element={<Bag />} />,
+      <Route path="/both" element={<Product cat="unisex" />} />
+      <Route path="/cart" element={<Bag />}>
+        <Route index element={<BagItems />} />
+        <Route path="/cart/history" element={<OrderHistory />} />
+      </Route>
       <Route
         path="/wishlist"
         element={<Wishlists />}
@@ -47,15 +49,13 @@ const router = createBrowserRouter(
           return await axios("/api/whishlist/access-items-from-whishlist");
         }}
       />
-      ,
-      <Route path="/enterOtp" element={<EnterOtp />} />,
-      <Route path="/login" element={<Login />} />,
-      <Route path="/register" element={<Register />} />,
+      <Route path="/enterOtp" element={<EnterOtp />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/admin" element={<Admin />}>
         <Route path="/admin" element={<AddProductForm />} />
         {/* <Route path="/admin/list" element={<AddP />} /> */}
       </Route>
-      ,
     </Route>
   )
 );

@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { changeDropdownStateOfProfile, profileUnCheck } from "../shope/profile";
 import { modeChange } from "../shope/mode";
 import axios from "axios";
-import { newProducts } from "../shope/product";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -90,7 +89,7 @@ const Navbar = () => {
               Women
             </NavLink>
             <NavLink
-              to="/kids"
+              to="/both"
               className={({ isActive }) =>
                 `${
                   isActive
@@ -99,7 +98,7 @@ const Navbar = () => {
                 } border-b-2 pb-2 `
               }
             >
-              Kids
+              Both
             </NavLink>
           </div>
           {/* End Desktop Menu */}
@@ -127,7 +126,13 @@ const Navbar = () => {
                     <FaHeart className="ml-2" />
                     {/* Notification Badge */}
                     <span className="absolute  -top-2 -right-2 bg-red-500 text-xs text-white rounded-full w-4 h-4 flex items-center justify-center">
-                      {whishlist.length}
+                      {whishlist.length > 9 ? (
+                        <span>
+                          9<sup>+</sup>
+                        </span>
+                      ) : (
+                        whishlist.length
+                      )}
                     </span>
                     <span className="text-[10px] right-0 left-0 top-4 absolute">
                       Whishlist
@@ -140,7 +145,13 @@ const Navbar = () => {
 
                     {/* Notification Badge */}
                     <span className="absolute -top-2 -right-2 bg-red-500 text-xs text-white rounded-full w-4 h-4 flex items-center justify-center">
-                      {bag.length}
+                      {bag.length > 9 ? (
+                        <span>
+                          9<sup>+</sup>
+                        </span>
+                      ) : (
+                        bag.length
+                      )}
                     </span>
                     <span className="text-[10px] text-center absolute">
                       Bag
@@ -227,11 +238,11 @@ const Navbar = () => {
               Women
             </NavLink>
             <NavLink
-              to="/kids"
+              to="/both"
               className="block py-2 px-4"
               onClick={() => setMenuOpen(false)}
             >
-              Kids
+              Both
             </NavLink>
             {Object.keys(user).length > 0 ? (
               <NavLink

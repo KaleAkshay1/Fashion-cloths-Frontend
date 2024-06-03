@@ -87,7 +87,7 @@ function Product({ cat }) {
     }
   };
 
-  const accessNextOrPreviousProduct = async (val) => {
+  const accessLastOrFirdtProduct = async (val) => {
     try {
       let data;
       const query = { gender: cat };
@@ -96,16 +96,20 @@ function Product({ cat }) {
           query[i] = sidebarFilters[i];
         }
       }
-      if (val === "N") {
-        data = await axios(`/api/items/fetch-items-data/${total[slot + 1]}`, {
-          params: query,
-        });
-        setSlot((pre) => pre + 1);
+      console.log(total[total.length - 1]);
+      if (val === "L") {
+        data = await axios(
+          `/api/items/fetch-items-data/${total[total.length - 1]}`,
+          {
+            params: query,
+          }
+        );
+        setSlot(total.length - 1);
       } else {
-        data = await axios(`/api/items/fetch-items-data/${total[slot - 1]}`, {
+        data = await axios(`/api/items/fetch-items-data/${total[0]}`, {
           params: query,
         });
-        setSlot((pre) => pre - 1);
+        setSlot(0);
       }
       dispatch(newProducts(data?.data?.data));
     } catch (error) {
@@ -467,10 +471,10 @@ function Product({ cat }) {
               <div className="flex mx-7 my-4 relative items-center justify-center dark:text-white">
                 {slot !== 0 && (
                   <button
-                    onClick={() => accessNextOrPreviousProduct("P")}
+                    onClick={() => accessLastOrFirdtProduct("F")}
                     className="border absolute left-10 button-transition border-slate-800 rounded-md hover:bg-gradient-to-tl hover:from-purple-950 hover:via-blue-800 hover:border-white dark:hover:border-slate-900 hover:to-pink-900 hover:text-white px-4 py-1"
                   >
-                    {"<"} Previous
+                    First Page
                   </button>
                 )}
 
@@ -496,10 +500,10 @@ function Product({ cat }) {
                 </div>
                 {slot !== total.length - 1 && (
                   <button
-                    onClick={() => accessNextOrPreviousProduct("N")}
+                    onClick={() => accessLastOrFirdtProduct("L")}
                     className="border absolute right-10 button-transition border-slate-800 rounded-md hover:bg-gradient-to-tl hover:from-purple-950 hover:via-blue-800 hover:border-white dark:hover:border-slate-900 hover:to-pink-900 hover:text-white px-4 py-1"
                   >
-                    Next {">"}
+                    Last Page
                   </button>
                 )}
                 {total.length >= 8 && slot < total.length - 4 && (

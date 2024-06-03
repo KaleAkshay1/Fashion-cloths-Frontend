@@ -33,11 +33,33 @@ function BagCard({ product }) {
     }
   };
 
+  const incressQuentity = async () => {
+    try {
+      const data = await axios(
+        `/api/cart/incress-quentity-of-item/${product.itemId._id}`
+      );
+      dispatch(addDataInBag(data.data.data));
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  };
+
+  const decressQuentity = async () => {
+    try {
+      const data = await axios(
+        `/api/cart/decress-quentity-of-item/${product.itemId._id}`
+      );
+      dispatch(addDataInBag(data.data.data));
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  };
+
   return (
     <>
       <div className="flex justify-between items-center">
         <NavLink
-          to={`/${product.itemId.gender}/detail/${product.itemId._id}`}
+          to={`/${product.itemId.category}/detail/${product.itemId._id}`}
           className="w-[40%]"
         >
           <div className="flex gap-5 w-full items-center">
@@ -56,15 +78,25 @@ function BagCard({ product }) {
             </div>
           </div>
         </NavLink>
-        <div className="dark:text-slate-100 text-slate-700 font-bold font-serif text-lg">
+        <div className="dark:text-slate-100 text-slate-700 font-bold font-serif text-lg w-[7%]">
           {product.size}
         </div>
-        <div className="flex items-center gap-3">
-          <FiMinusCircle size={20} color="red" className="cursor-pointer" />
-          <div className="text-xl dark:text-slate-200 text-slate-700 font-mono">
+        <div className="flex items-center gap-2">
+          <FiMinusCircle
+            size={20}
+            color="red"
+            className="cursor-pointer"
+            onClick={decressQuentity}
+          />
+          <div className="text-xl dark:text-slate-200 text-slate-700 font-mono text-center min-w-10">
             {product.quantity}
           </div>
-          <FiPlusCircle size={20} color="green" className="cursor-pointer" />
+          <FiPlusCircle
+            size={20}
+            color="green"
+            className="cursor-pointer"
+            onClick={incressQuentity}
+          />
         </div>
         <div className="dark:text-white">₹{product.price}</div>
         <div
