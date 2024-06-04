@@ -1,4 +1,10 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, {
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { profileUnCheck } from "../shope/profile";
 import { newProducts } from "../shope/product";
@@ -39,6 +45,18 @@ function Product({ cat }) {
     maxPrice: 100000,
   });
 
+  useLayoutEffect(() => {
+    setShowFilters({ showCategory: false, showBrands: false, showSize: false });
+    setSidebarFilters({
+      brand: null,
+      sizes: null,
+      category: null,
+      minPrice: 0,
+      maxPrice: 100000,
+    });
+    setSlot(0);
+  }, [cat]);
+
   useEffect(() => {
     (async () => {
       const query = { gender: cat };
@@ -61,13 +79,21 @@ function Product({ cat }) {
     dispatch(profileUnCheck());
   }, [cat, sidebarFilters]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     (async () => {
       setDetailKeys(Object.keys(productfilteringData[cat].details));
       const result = product.filter((ele, ind) => ele.gender === cat);
       setFilterProduct(result);
     })();
   }, [product, productfilteringData]);
+
+  const closeShowFilters = () => {
+    let data = {};
+    for (let i in showFilters) {
+      data[i] = false;
+    }
+    setShowFilters(data);
+  };
 
   const accessMoreProduct = async (val, ind) => {
     try {
@@ -96,7 +122,6 @@ function Product({ cat }) {
           query[i] = sidebarFilters[i];
         }
       }
-      console.log(total[total.length - 1]);
       if (val === "L") {
         data = await axios(
           `/api/items/fetch-items-data/${total[total.length - 1]}`,
@@ -118,7 +143,6 @@ function Product({ cat }) {
   };
 
   const changeData = (type, ele) => {
-    console.log(minPrice.current?.value, maxPrice.current?.value);
     const keys = Object.keys(showFilters);
     keys.forEach((item, index) => {
       showFilters[item] = false;
@@ -262,7 +286,8 @@ function Product({ cat }) {
         <div
           className={`${
             filter ? "col-span-2" : "hidden"
-          } p-5 flex flex-col gap-6 max-h-[140vh] product-category overflow-hidden overflow-y-auto dark:text-white`}
+          } p-5 flex flex-col gap-6 product-category overflow-hidden overflow-y-auto dark:text-white`}
+          onMouseLeave={closeShowFilters}
         >
           {/* sidebar category */}
           <div
@@ -455,7 +480,7 @@ function Product({ cat }) {
         <div
           className={`${
             filter ? "col-span-8" : "col-span-10"
-          } max-h-[140vh] overflow-hidden overflow-y-auto product-category`}
+          } overflow-hidden overflow-y-auto product-category`}
         >
           <div className="flex flex-wrap p-6 gap-5">
             {filterProduct.map((ele) =>

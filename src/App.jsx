@@ -37,9 +37,6 @@ function App() {
         if (error.response.status === 401) {
           toast.info("🔐Plz login for better experiance", {
             position: "top-center",
-            autoClose: 3000,
-            theme: "dark",
-            pauseOnHover: false,
           });
         } else {
           alert(error.message);
