@@ -2,12 +2,16 @@ import React, { useLayoutEffect, useState } from "react";
 
 import BagCard from "../Card/BagCard";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { addDataInBag } from "../../shope/bag";
+import { addDataInOrder } from "../../shope/order";
 
 function BagItems() {
   const bag = useSelector((state) => state.bag);
   const [items, setItems] = useState([]);
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const [price, setPrice] = useState(
     items.reduce((accumulator, currentItem) => {
       return accumulator + currentItem.price;
@@ -20,6 +24,13 @@ function BagItems() {
           return accumulator + currentItem.price;
         }, 0)
     )
+  );
+
+  const [discount, setDiscount] = useState(
+    price -
+      items.reduce((accumulator, currentItem) => {
+        return accumulator + currentItem.dPrice;
+      }, 0)
   );
 
   const [total, setTotal] = useState(price + tax);
@@ -43,12 +54,26 @@ function BagItems() {
                 }, 0)
             )
           );
+          setDiscount(
+            data.data.data.reduce((accumulator, currentItem) => {
+              return accumulator + currentItem.price;
+            }, 0) -
+              data.data.data.reduce((accumulator, currentItem) => {
+                return accumulator + currentItem.dPrice;
+              }, 0)
+          );
           setTotal(
             Number(
               data.data.data.reduce((accumulator, currentItem) => {
                 return accumulator + currentItem.price;
               }, 0)
-            ) +
+            ) -
+              (data.data.data.reduce((accumulator, currentItem) => {
+                return accumulator + currentItem.price;
+              }, 0) -
+                data.data.data.reduce((accumulator, currentItem) => {
+                  return accumulator + currentItem.dPrice;
+                }, 0)) +
               Number(
                 Math.ceil(
                   (5 / 100) *
@@ -58,7 +83,6 @@ function BagItems() {
                 )
               )
           );
-          console.log();
         }
       } catch (error) {}
     })();
@@ -68,29 +92,31 @@ function BagItems() {
     const options = {
       amount: total * 100,
       currency: "INR",
-      receipt: String(Date.now()),
+      // receipt: String(Date.now()),
     };
     const data = await axios.post("/api/order/payment", options);
     const order = data.data.data;
-    console.log("order", order);
 
     let option = {
       key: "rzp_test_DiQxHejUmZjKkT",
-      amount: total * 100,
-      currency: "INR",
+      amount: order.amount,
+      currency: order.currency,
       name: "Fashion X",
+      order_id: order.id,
       image:
         "https://tse2.mm.bing.net/th?id=OIP.NALWlKaZwG2yY88eC0LHtgHaH1&pid=Api&P=0&h=180",
-      order_id: order.id,
       handler: async function (response) {
         const body = { ...response };
+        console.log("responce is ", response);
 
         const validationResponse = await axios.post(
           "/api/order/validation",
           body
         );
         const jsonResponse = validationResponse.data.data;
-        console.log("calidation responce", jsonResponse);
+        console.log("validation responce", jsonResponse);
+        dispatch(addDataInBag(jsonResponse.cartData));
+        dispatch(addDataInOrder(jsonResponse.cartData));
       },
       prefill: {
         name: user.username,
@@ -103,15 +129,15 @@ function BagItems() {
         color: "#990099",
       },
     };
-    var rzp1 = new Razorpay(option);
+    let rzp1 = new Razorpay(option);
     rzp1.on("payment.failed", function (response) {
-      alert(response.error.code);
-      alert(response.error.description);
-      alert(response.error.source);
-      alert(response.error.step);
-      alert(response.error.reason);
-      alert(response.error.metadata.order_id);
-      alert(response.error.metadata.payment_id);
+      // toast.error(response.error.code);
+      toast.error(response.error.description);
+      // toast.error(response.error.source);
+      // toast.error(response.error.step);
+      toast.error(response.error.reason);
+      // toast.error(response.error.metadata.order_id);
+      // toast.error(response.error.metadata.payment_id);
     });
 
     rzp1.open();
@@ -120,7 +146,7 @@ function BagItems() {
 
   return (
     <div className="w-full grid grid-cols-7 gap-2 ">
-      <div className="col-span-5 dark:border-slate-500 dark:shadow-slate-600 dark:shadow-sm shadow-md dark:border rounded p-5 bg-white dark:bg-black">
+      <div className="col-span-5  dark:border-slate-500 dark:shadow-slate-600 dark:shadow-sm shadow-md dark:border rounded p-5 bg-white dark:bg-black">
         <div className="flex justify-between items-center">
           <div className="text-slate-700 font-semibold text-2xl dark:text-slate-200">
             Shoping Bag
@@ -133,9 +159,15 @@ function BagItems() {
           </div>
         </div>
         <hr className="my-5 h-[1px] border dark:h-[0.5px] dark:bg-slate-200 dark:border-none" />
-        {items.map((ele, ind) => (
-          <BagCard key={ind} product={ele} />
-        ))}
+        {items.length === 0 ? (
+          <div className="flex justify-center items-center h-40">
+            <span className="text-xl text-slate-800 dark:text-slate-200">
+              Your cart is currently empty.
+            </span>
+          </div>
+        ) : (
+          items.map((ele, ind) => <BagCard key={ind} product={ele} />)
+        )}
       </div>
       <div className="col-span-2">
         <div className="shadow-md rounded dark:border dark:border-slate-500 dark:shadow-slate-600 dark:shadow-sm bg-white dark:bg-black">
@@ -152,6 +184,15 @@ function BagItems() {
             </div>
 
             <div className="flex justify-between">
+              <span className="text-slate-600 dark:text-slate-200">
+                Discount
+              </span>
+              <span className="text-red-600 dark:text-red-500">
+                -₹{discount}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
               <span className="text-slate-600 dark:text-slate-200">TAX</span>
               <span className="text-slate-800 dark:text-slate-50">₹{tax}</span>
             </div>
@@ -160,7 +201,10 @@ function BagItems() {
               <span className="text-slate-600 dark:text-slate-200">
                 SHIPPING
               </span>
-              <span className="text-slate-800 dark:text-slate-50">₹0</span>
+              <span className="text-slate-800 dark:text-slate-50">
+                {" "}
+                <span className="text-green-500">FREE</span>
+              </span>
             </div>
 
             <hr className="h-[1px] border  dark:h-[0.5px] dark:bg-slate-200 dark:border-none" />

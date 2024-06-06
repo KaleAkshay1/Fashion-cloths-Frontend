@@ -33,9 +33,9 @@ function Product({ cat }) {
   const minPrice = useRef(0);
   const maxPrice = useRef(100000);
   const [showFilters, setShowFilters] = useState({
-    showCategory: false,
-    showBrands: false,
-    showSize: false,
+    showCategory: true,
+    showBrands: true,
+    showSize: true,
   });
   const [sidebarFilters, setSidebarFilters] = useState({
     brand: null,
@@ -46,7 +46,7 @@ function Product({ cat }) {
   });
 
   useLayoutEffect(() => {
-    setShowFilters({ showCategory: false, showBrands: false, showSize: false });
+    setShowFilters({ showCategory: true, showBrands: true, showSize: true });
     setSidebarFilters({
       brand: null,
       sizes: null,
@@ -88,9 +88,14 @@ function Product({ cat }) {
   }, [product, productfilteringData]);
 
   const closeShowFilters = () => {
+    x``;
     let data = {};
     for (let i in showFilters) {
-      data[i] = false;
+      if (["showCategory", "showBrands", "showSize"].some((ele) => ele === i)) {
+        data[i] = showFilters[i];
+      } else {
+        data[i] = false;
+      }
     }
     setShowFilters(data);
   };
@@ -183,7 +188,7 @@ function Product({ cat }) {
 
       <div className="grid-cols-10 grid">
         {/* show and hide sidebar */}
-        <div className="mx-5 col-span-10 flex flex-wrap gap-5">
+        <div className="mx-5 col-span-10 mb-3 flex flex-wrap gap-5">
           <div
             className=" px-2 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
             onClick={() => setFilter((pre) => !pre)}
@@ -307,7 +312,7 @@ function Product({ cat }) {
             />
           </div>
           {showFilters.showCategory && (
-            <div className="colors-in-product flex flex-col min-h-[40vh] overflow-hidden overflow-y-auto gap-3 ">
+            <div className="colors-in-product flex flex-col max-h-[40vh] overflow-hidden overflow-y-auto gap-3 ">
               {productfilteringData[cat].categories.map((ele, ind) => (
                 <div
                   key={ind}
@@ -344,7 +349,7 @@ function Product({ cat }) {
             />
           </div>
           {showFilters.showBrands && (
-            <div className="colors-in-product flex flex-col min-h-[40vh] overflow-hidden overflow-y-auto gap-3 ">
+            <div className="colors-in-product flex flex-col max-h-[40vh] overflow-hidden overflow-y-auto gap-3 ">
               {productfilteringData[cat].brands.map((ele, ind) => (
                 <div
                   key={ind}
@@ -480,7 +485,7 @@ function Product({ cat }) {
         <div
           className={`${
             filter ? "col-span-8" : "col-span-10"
-          } overflow-hidden overflow-y-auto product-category`}
+          } overflow-hidden  overflow-y-auto product-category colors-in-product`}
         >
           <div className="flex flex-wrap p-6 gap-5">
             {filterProduct.map((ele) =>

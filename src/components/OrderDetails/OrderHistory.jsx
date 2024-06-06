@@ -1,14 +1,48 @@
-import React, { useLayoutEffect } from "react";
+import React, { memo, useLayoutEffect, useState } from "react";
 import axios from "axios";
+import OrderItemsCard from "../Card/OrderItemsCard";
 
-function OrderHistory() {
+function orderItems() {
+  const [orderItems, setOrderItems] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [end, setEnd] = useState(5);
   useLayoutEffect(() => {
     (async () => {
-      const data = await axios("/api/items/practise");
-      console.log(data);
+      let query = { start: 0, end: end };
+      const data = await axios("/api/order/access-order-history", {
+        params: query,
+      });
+      setOrderItems(data.data.data.items);
+      setTotalItems(data.data.data.total);
     })();
-  }, []);
-  return <div>OrderHistory</div>;
+  }, [end]);
+  return (
+    <div className="w-full dark:border-slate-500 dark:shadow-slate-600 dark:shadow-sm shadow-md dark:border rounded p-5 bg-white dark:bg-black">
+      <h2 className="text-slate-700 py-2 font-semibold text-3xl dark:text-slate-200 text-center">
+        Order History
+      </h2>
+      <div className="flex justify-between items-center text-center text-black px-5 dark:text-white">
+        <div className="w-[35%] text-left px-20">ITEMS</div>
+        <div className="w-[7%]">Size</div>
+        <div className="w-[7%]">Quantity</div>
+        <div className="w-[7%]">Ammount</div>
+        <div className="w-[7%]">Paymetn Status</div>
+        <div className="w-[7%]">Delivery Status</div>
+      </div>
+      <hr className="mb-5 h-[1px] border dark:h-[0.5px] dark:bg-slate-200 dark:border-none" />
+      {orderItems.map((ele, ind) => (
+        <OrderItemsCard key={ind} product={ele} />
+      ))}
+      {orderItems.length < totalItems && (
+        <div
+          className="text-blue-500 px-10 py-5 cursor-pointer inline-block"
+          onClick={() => setEnd((pre) => pre + 5)}
+        >
+          See more ...
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default OrderHistory;
+export default memo(orderItems);

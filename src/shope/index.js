@@ -8,6 +8,7 @@ import ownerProductSlice from "./ownersProduct";
 import optionDataSlice from "./optionData";
 import whishlistSlice from "./whishlist";
 import bagSlice from "./bag";
+import orderSlice from "./order";
 
 const shope = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ const shope = configureStore({
     optionData: optionDataSlice.reducer,
     whishlist: whishlistSlice.reducer,
     bag: bagSlice.reducer,
+    order: orderSlice.reducer,
   },
 });
 

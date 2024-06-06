@@ -23,6 +23,8 @@ import Bag from "./components/OrderDetails/Bag.jsx";
 import Wishlists from "./components/OrderDetails/Wishlists.jsx";
 import BagItems from "./components/OrderDetails/BagItems.jsx";
 import OrderHistory from "./components/OrderDetails/OrderHistory.jsx";
+import Profile from "./components/User/Profile.jsx";
+import PersonalInfo from "./components/User/PersonalInfo.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -38,6 +40,9 @@ const router = createBrowserRouter(
       <Route path="/men" element={<Product cat="men" />} />
       <Route path="/women" element={<Product cat="women" />} />
       <Route path="/both" element={<Product cat="unisex" />} />
+      <Route path="/profile" element={<Profile />}>
+        <Route index element={<PersonalInfo />} />
+      </Route>
       <Route path="/cart" element={<Bag />}>
         <Route index element={<BagItems />} />
         <Route path="/cart/history" element={<OrderHistory />} />

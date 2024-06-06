@@ -98,7 +98,20 @@ function BagCard({ product }) {
             onClick={incressQuentity}
           />
         </div>
-        <div className="dark:text-white">₹{product.price}</div>
+        <div>
+          <div
+            className="dark:text-white text-center"
+            style={{ marginBottom: "-10px" }}
+          >
+            ₹{product.dPrice}
+          </div>
+          <del
+            className="text-slate-500 text-center dark:text-slate-500 text-[12px]"
+            style={{ marginTop: "-10px" }}
+          >
+            ₹{product.price}
+          </del>
+        </div>
         <div
           className=" p-2 rounded hover:bg-slate-200 hover:dark:bg-slate-800 cursor-pointer"
           onClick={removeFromCart}

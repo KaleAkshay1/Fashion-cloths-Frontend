@@ -6,6 +6,7 @@
     margin: 0;padding: 0;
 }
 .add-product-form::-webkit-scrollbar,
+.edit-profile::-webkit-scrollbar,
 .product-detail-images::-webkit-scrollbar,
 .product-category::-webkit-scrollbar{
     width: 0px;
