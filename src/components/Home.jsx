@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { profileUnCheck } from "../shope/profile";
 import ManageGap from "./ManageGap";
 import axios from "axios";
 import { newProducts } from "../shope/product";
@@ -23,7 +22,7 @@ function Home() {
       image: "/men.jpg",
       cat: "Men",
     },
-    { image: "/kids.png", cat: "Kids" },
+    { image: "/unisex.png", cat: "Both" },
   ];
 
   useEffect(() => {
@@ -31,7 +30,6 @@ function Home() {
       const pData = await axios("/api/product/fetch-product-data");
       dispatch(newProducts(pData?.data?.data));
     })();
-    dispatch(profileUnCheck());
   }, []);
 
   return (

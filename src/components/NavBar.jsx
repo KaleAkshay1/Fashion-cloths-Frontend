@@ -6,13 +6,12 @@ import { BsFillHandbagFill } from "react-icons/bs";
 import ProfileDropdown from "./ProfileDropdown";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
-import { changeDropdownStateOfProfile, profileUnCheck } from "../shope/profile";
 import { modeChange } from "../shope/mode";
 import axios from "axios";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const profileDropdown = useSelector((state) => state.profileDropdown);
+  const [profile, setProfile] = useState(false);
   const mode = useSelector((store) => store.darkMode);
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -21,9 +20,9 @@ const Navbar = () => {
 
   useEffect(() => {
     if (Object.keys(user).length === 0) {
-      dispatch(profileUnCheck());
+      setProfile(false);
     }
-  }, []);
+  }, [user]);
 
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
@@ -42,7 +41,7 @@ const Navbar = () => {
   return (
     <>
       <header
-        className={`sticky top-0 bg-white dark:bg-black dark:text-white z-10`}
+        className={`sticky top-0 bg-white dark:bg-black dark:text-white z-50`}
       >
         <nav className="flex justify-between items-center px-6 py-3">
           <div className="flex items-center gap-1">
@@ -53,6 +52,7 @@ const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden sm:flex items-center gap-6 font-semibold text-gray-800 text-sm dark:text-gray-200">
             <NavLink
+              end
               to="/"
               className={({ isActive }) =>
                 `${
@@ -65,6 +65,7 @@ const Navbar = () => {
               Home
             </NavLink>
             <NavLink
+              end
               to="/men"
               className={({ isActive }) =>
                 `${
@@ -78,6 +79,7 @@ const Navbar = () => {
             </NavLink>
             <NavLink
               to="/women"
+              end
               className={({ isActive }) =>
                 `${
                   isActive
@@ -89,6 +91,7 @@ const Navbar = () => {
               Women
             </NavLink>
             <NavLink
+              end
               to="/both"
               className={({ isActive }) =>
                 `${
@@ -122,7 +125,7 @@ const Navbar = () => {
             {Object.keys(user).length > 0 ? (
               <>
                 <div className="relative cursor-pointer hidden text-md sm:block">
-                  <NavLink to={"/wishlist"}>
+                  <NavLink end to={"/wishlist"}>
                     <FaHeart className="ml-2" />
                     {/* Notification Badge */}
                     <span className="absolute  -top-2 -right-2 bg-red-500 text-xs text-white rounded-full w-4 h-4 flex items-center justify-center">
@@ -140,7 +143,7 @@ const Navbar = () => {
                   </NavLink>
                 </div>
                 <div className="relative cursor-pointer ml-3 hidden sm:block">
-                  <NavLink to="/cart">
+                  <NavLink end to="/cart">
                     <BsFillHandbagFill className="" />
 
                     {/* Notification Badge */}
@@ -163,7 +166,7 @@ const Navbar = () => {
                   className="bg-gray-800 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-gray-800 dark:focus:ring-white dark:focus:ring-offset-gray-800 relative hidden sm:block"
                   id="user-menu"
                   aria-haspopup="true"
-                  onClick={() => dispatch(changeDropdownStateOfProfile())}
+                  onClick={() => setProfile((pre) => !pre)}
                 >
                   <img
                     className="h-8 w-8 rounded-full cursor-pointer"
@@ -179,6 +182,7 @@ const Navbar = () => {
             ) : (
               <NavLink
                 to="/login"
+                end
                 className="border hidden sm:block px-5 py-0 text-[16px] font-semibold shadow-lg rounded-full text-slate-900 active:bg-slate-200 border-black dark:text-slate-200 dark:border-white dark:active:bg-slate-700"
               >
                 Log In
@@ -218,12 +222,14 @@ const Navbar = () => {
           <ul className="mt-4">
             <NavLink
               to="/"
+              end
               className="block py-2 px-4"
               onClick={() => setMenuOpen(false)}
             >
               Home
             </NavLink>
             <NavLink
+              end
               to="/men"
               className="block py-2 px-4"
               onClick={() => setMenuOpen(false)}
@@ -231,6 +237,7 @@ const Navbar = () => {
               Men
             </NavLink>
             <NavLink
+              end
               to="/women"
               className="block py-2 px-4"
               onClick={() => setMenuOpen(false)}
@@ -238,6 +245,7 @@ const Navbar = () => {
               Women
             </NavLink>
             <NavLink
+              end
               to="/both"
               className="block py-2 px-4"
               onClick={() => setMenuOpen(false)}
@@ -246,6 +254,7 @@ const Navbar = () => {
             </NavLink>
             {Object.keys(user).length > 0 ? (
               <NavLink
+                end
                 to="/"
                 className="block py-2 px-4"
                 onClick={() => setMenuOpen(false)}
@@ -254,6 +263,7 @@ const Navbar = () => {
               </NavLink>
             ) : (
               <NavLink
+                end
                 to="/login"
                 className="block py-2 px-4 cursor-pointer"
                 onClick={() => setMenuOpen(false)}
@@ -272,8 +282,13 @@ const Navbar = () => {
         )}
         {/* End Sidebar Overlay */}
         {/* End Sidebar for mobile */}
-        {profileDropdown && (
-          <ProfileDropdown name={user.username} admin={user.admin} />
+        {profile && (
+          <ProfileDropdown
+            name={user.username}
+            onMouseLeave={() => setProfile(false)}
+            admin={user.admin}
+            closeProfile={() => setProfile(false)}
+          />
         )}
         <hr className="mx-8" />
       </header>

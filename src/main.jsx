@@ -25,6 +25,7 @@ import BagItems from "./components/OrderDetails/BagItems.jsx";
 import OrderHistory from "./components/OrderDetails/OrderHistory.jsx";
 import Profile from "./components/User/Profile.jsx";
 import PersonalInfo from "./components/User/PersonalInfo.jsx";
+import MyProductsList from "./components/Admin/MyProductsList.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -42,6 +43,7 @@ const router = createBrowserRouter(
       <Route path="/both" element={<Product cat="unisex" />} />
       <Route path="/profile" element={<Profile />}>
         <Route index element={<PersonalInfo />} />
+        <Route path="/profile/orders" element={<OrderHistory />} />
       </Route>
       <Route path="/cart" element={<Bag />}>
         <Route index element={<BagItems />} />
@@ -59,7 +61,13 @@ const router = createBrowserRouter(
       <Route path="/register" element={<Register />} />
       <Route path="/admin" element={<Admin />}>
         <Route path="/admin" element={<AddProductForm />} />
-        {/* <Route path="/admin/list" element={<AddP />} /> */}
+        <Route
+          path="/admin/list"
+          element={<MyProductsList />}
+          loader={async () => {
+            return axios(`/api/admin/acess-items-list`);
+          }}
+        />
       </Route>
     </Route>
   )

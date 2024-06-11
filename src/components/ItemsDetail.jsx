@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { FaStar } from "react-icons/fa6";
 import { NavLink, useNavigate } from "react-router-dom";
 import { BsFillHandbagFill } from "react-icons/bs";
@@ -9,6 +9,9 @@ import { addDataInBag } from "../shope/bag";
 import { RiDeleteBinFill } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { addDataInWishlist } from "../shope/whishlist";
+import ManageGap from "./ManageGap";
+import { category } from "../../../backend/src/constant";
+import ItemSlider from "./Card/ItemSlider";
 
 function ItemsDetail({ product }) {
   const [data, setData] = useState([]);
@@ -18,6 +21,9 @@ function ItemsDetail({ product }) {
   const whishlist = useSelector((state) => state.whishlist);
   const bag = useSelector((state) => state.bag);
   const dispatch = useDispatch();
+  const [similarItem, setSimilarItem] = useState([]);
+  const user = useSelector((state) => state.user);
+  const [recentView, setRecentView] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -26,6 +32,22 @@ function ItemsDetail({ product }) {
           `/api/items/fetch-related-items/${product._id}`
         );
         setData(out?.data?.data);
+        const data = await axios("/api/items/similar-item", {
+          params: {
+            gender: out.data.data[0].gender,
+            category: out.data.data[0].category,
+            brand: out.data.data[0].brand,
+          },
+        });
+        setSimilarItem(data.data.data);
+        if (Object.keys(user).length > 0) {
+          const data = await axios("/api/items/access-recently-view");
+          if (data.data.data) {
+            setRecentView(data.data.data);
+          }
+          await axios(`/api/items/add-items-recetly-views/${product._id}`);
+          console.log(data.data.data);
+        }
       }
     })();
   }, [product, bag]);
@@ -109,6 +131,8 @@ function ItemsDetail({ product }) {
       }
     }
   };
+
+  console.log("recently view", recentView);
 
   return (
     <>
@@ -260,7 +284,7 @@ function ItemsDetail({ product }) {
                       {ele}
                     </p>
                     <p className="px-2 text-[16px] text-slate-900 dark:text-slate-50">
-                      {ele}
+                      {product.details[ele]}
                     </p>
                     <hr className="m-2" />
                   </div>
@@ -270,6 +294,26 @@ function ItemsDetail({ product }) {
           </div>
         </div>
       )}
+      <br />
+      <ManageGap>
+        <div className="text-2xl font-semibold font-serif text-slate-800 w-full px-5 dark:text-slate-200">
+          More Similer Item
+        </div>
+        <ItemSlider items={similarItem} />
+        {recentView.length > 0 && (
+          <>
+            <div className="text-2xl font-semibold font-serif text-slate-800 w-full px-5 dark:text-slate-200">
+              Recently viewed Items
+            </div>
+            <ItemSlider items={recentView}></ItemSlider>
+          </>
+        )}
+      </ManageGap>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
     </>
   );
 }

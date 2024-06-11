@@ -24,10 +24,10 @@ function orderItems() {
       <div className="flex justify-between items-center text-center text-black px-5 dark:text-white">
         <div className="w-[35%] text-left px-20">ITEMS</div>
         <div className="w-[7%]">Size</div>
-        <div className="w-[7%]">Quantity</div>
-        <div className="w-[7%]">Ammount</div>
-        <div className="w-[7%]">Paymetn Status</div>
-        <div className="w-[7%]">Delivery Status</div>
+        <div className="w-[7%]">Qty</div>
+        <div className="w-[7%]">Price</div>
+        <div className="w-[10%]">Paymetn Status</div>
+        <div className="w-[10%]">Delivery Status</div>
       </div>
       <hr className="mb-5 h-[1px] border dark:h-[0.5px] dark:bg-slate-200 dark:border-none" />
       {orderItems.map((ele, ind) => (

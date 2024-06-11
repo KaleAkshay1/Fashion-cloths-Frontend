@@ -8,7 +8,7 @@ function SideBar() {
     <>
       <div
         to="/admin"
-        className=" w-[20%] min-h-[85vh]  flex flex-col items-center gap-3 py-3"
+        className=" col-span-2 min-h-[85vh]  flex flex-col items-center gap-3 py-3"
       >
         <NavLink className="dark:text-white w-[80%] rounded p-2 px-4 bg-gray-100 active:bg-gray-100 dark:active:bg-slate-800 dark:bg-slate-700 flex items-center gap-3">
           <FaCartPlus className="text-2xl" /> Add Product

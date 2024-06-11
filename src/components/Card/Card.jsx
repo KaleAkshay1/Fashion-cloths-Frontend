@@ -76,7 +76,7 @@ function Card({ product }) {
     <>
       <div className="w-[200px] p-2 relative h-[310px] rounded-xl overflow-hidden  max-w-sm bg-white border dark:border-slate-800 dark:shadow-slate-800 dark:shadow-sm shadow-md dark:bg-slate-950 ">
         <div className="relative">
-          <NavLink to={`/:${product.category}/detail/${product._id}`}>
+          <NavLink to={`/${product.gender}/detail/${product._id}`}>
             <img
               className="h-[210px] w-full cursor-pointer rounded-md"
               src={product.images.all[imageIndex]}

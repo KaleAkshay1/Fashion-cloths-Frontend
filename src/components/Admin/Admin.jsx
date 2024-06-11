@@ -6,7 +6,7 @@ function Admin() {
   return (
     <>
       <main>
-        <section className="flex">
+        <section className="grid grid-cols-10">
           <SideBar></SideBar>
           <Outlet />
         </section>

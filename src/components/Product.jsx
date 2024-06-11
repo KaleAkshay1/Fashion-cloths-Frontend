@@ -6,7 +6,6 @@ import React, {
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { profileUnCheck } from "../shope/profile";
 import { newProducts } from "../shope/product";
 import ManageGap from "./ManageGap";
 import axios from "axios";
@@ -45,6 +44,24 @@ function Product({ cat }) {
     maxPrice: 100000,
   });
 
+  const apiCall = async (filterObject) => {
+    const query = { gender: cat };
+    if (Object.keys(filterObject).length > 0) {
+      for (let i in filterObject) {
+        if (filterObject[i]) {
+          query[i] = filterObject[i];
+        }
+      }
+    }
+    const data = await axios.get("/api/items/fetch-items-filtered-data", {
+      params: query,
+    });
+    dispatch(newProducts(data?.data?.data?.data));
+    const arraylength = Math.ceil(data?.data?.data?.count / 24);
+    const array = new Array(arraylength).fill(0).map((_, index) => index * 24);
+    setTotal(array);
+  };
+
   useLayoutEffect(() => {
     setShowFilters({ showCategory: true, showBrands: true, showSize: true });
     setSidebarFilters({
@@ -55,28 +72,11 @@ function Product({ cat }) {
       maxPrice: 100000,
     });
     setSlot(0);
+    apiCall({});
   }, [cat]);
 
   useEffect(() => {
-    (async () => {
-      const query = { gender: cat };
-      for (let i in sidebarFilters) {
-        if (sidebarFilters[i]) {
-          query[i] = sidebarFilters[i];
-        }
-      }
-      const data = await axios.get("/api/items/fetch-items-filtered-data", {
-        params: query,
-      });
-      dispatch(newProducts(data?.data?.data?.data));
-      const arraylength = Math.ceil(data?.data?.data?.count / 24);
-      const array = new Array(arraylength)
-        .fill(0)
-        .map((_, index) => index * 24);
-      setTotal(array);
-    })();
-
-    dispatch(profileUnCheck());
+    apiCall(sidebarFilters);
   }, [cat, sidebarFilters]);
 
   useLayoutEffect(() => {
@@ -88,7 +88,6 @@ function Product({ cat }) {
   }, [product, productfilteringData]);
 
   const closeShowFilters = () => {
-    x``;
     let data = {};
     for (let i in showFilters) {
       if (["showCategory", "showBrands", "showSize"].some((ele) => ele === i)) {
@@ -175,118 +174,107 @@ function Product({ cat }) {
 
   return (
     <>
-      <ManageGap>
-        <Carosel
-          images={[
-            "/2slider2.jpg",
-            "/1slider1.jpg",
-            "/3slider1.jpg",
-            "/4slider3.jpg",
-          ]}
-        />
-      </ManageGap>
+      {/* show and hide sidebar */}
+      <div className="mx-5 z-10 fixed col-span-10 my-2 flex flex-wrap gap-5">
+        <div
+          className=" px-2 py-1 rounded-md dark:text-white text-2xl items-center bg-slate-200 dark:bg-slate-700 flex gap-2 cursor-pointer border"
+          onClick={() => setFilter((pre) => !pre)}
+        >
+          {filter ? (
+            <GrFormPrevious />
+          ) : (
+            <BsFilterLeft className="inline-block" />
+          )}
+          <p className="font-semibold">Filter's</p>
 
-      <div className="grid-cols-10 grid">
-        {/* show and hide sidebar */}
-        <div className="mx-5 col-span-10 mb-3 flex flex-wrap gap-5">
+          {filter ? <BsFilterRight /> : <MdNavigateNext />}
+        </div>
+        {sidebarFilters.brand && (
           <div
-            className=" px-2 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
-            onClick={() => setFilter((pre) => !pre)}
+            className="px-2 bg-slate-200 dark:bg-slate-700 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
+            onClick={() =>
+              setSidebarFilters((pre) => ({ ...pre, brand: null }))
+            }
           >
-            {filter ? (
-              <GrFormPrevious />
-            ) : (
-              <BsFilterLeft className="inline-block" />
-            )}
-            <p className="font-semibold">Filter's</p>
+            <p className="font-semibold">{sidebarFilters.brand}</p>
 
-            {filter ? <BsFilterRight /> : <MdNavigateNext />}
+            <RxCross2 className="text-red-600" />
           </div>
-          {sidebarFilters.brand && (
-            <div
-              className="px-2 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
-              onClick={() =>
-                setSidebarFilters((pre) => ({ ...pre, brand: null }))
-              }
-            >
-              <p className="font-semibold">{sidebarFilters.brand}</p>
+        )}
+        {sidebarFilters.category && (
+          <div
+            className="px-2 bg-slate-200 dark:bg-slate-700 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
+            onClick={() =>
+              setSidebarFilters((pre) => ({ ...pre, category: null }))
+            }
+          >
+            <p className="font-semibold">{sidebarFilters.category}</p>
 
-              <RxCross2 className="text-red-600" />
-            </div>
-          )}
-          {sidebarFilters.category && (
-            <div
-              className="px-2 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
-              onClick={() =>
-                setSidebarFilters((pre) => ({ ...pre, category: null }))
-              }
-            >
-              <p className="font-semibold">{sidebarFilters.category}</p>
+            <RxCross2 className="text-red-600" />
+          </div>
+        )}
+        {sidebarFilters.sizes && (
+          <div
+            className="px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
+            onClick={() =>
+              setSidebarFilters((pre) => ({ ...pre, sizes: null }))
+            }
+          >
+            <p className="font-semibold">{sidebarFilters.sizes}</p>
 
-              <RxCross2 className="text-red-600" />
-            </div>
-          )}
-          {sidebarFilters.sizes && (
-            <div
-              className="px-2 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
-              onClick={() =>
-                setSidebarFilters((pre) => ({ ...pre, sizes: null }))
-              }
-            >
-              <p className="font-semibold">{sidebarFilters.sizes}</p>
+            <RxCross2 className="text-red-600" />
+          </div>
+        )}
+        {sidebarFilters.minPrice !== 0 && (
+          <div
+            className="px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
+            onClick={() => {
+              minPrice.current.value = 0;
+              setSidebarFilters((pre) => ({ ...pre, minPrice: 0 }));
+            }}
+          >
+            <p className="font-semibold">Min Price {sidebarFilters.minPrice}</p>
 
-              <RxCross2 className="text-red-600" />
-            </div>
-          )}
-          {sidebarFilters.minPrice !== 0 && (
+            <RxCross2 className="text-red-600" />
+          </div>
+        )}
+        {sidebarFilters.maxPrice !== 0 &&
+          sidebarFilters.maxPrice !== 100000 && (
             <div
-              className="px-2 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
+              className="px-2 py-1 rounded-md dark:text-white text-2xl items-center bg-slate-200 dark:bg-slate-700 flex gap-2 cursor-pointer border"
               onClick={() => {
-                minPrice.current.value = 0;
-                setSidebarFilters((pre) => ({ ...pre, minPrice: 0 }));
+                maxPrice.current.value = 100000;
+                setSidebarFilters((pre) => ({ ...pre, maxPrice: 100000 }));
               }}
             >
               <p className="font-semibold">
-                Min Price {sidebarFilters.minPrice}
+                Max Price {sidebarFilters.maxPrice}
               </p>
 
               <RxCross2 className="text-red-600" />
             </div>
           )}
-          {sidebarFilters.maxPrice !== 0 &&
-            sidebarFilters.maxPrice !== 100000 && (
+        {detalKeys.map(
+          (ele, ind) =>
+            sidebarFilters[ele] && (
               <div
-                className="px-2 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
-                onClick={() => {
-                  maxPrice.current.value = 100000;
-                  setSidebarFilters((pre) => ({ ...pre, maxPrice: 100000 }));
-                }}
+                key={ind}
+                className="px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
+                onClick={() =>
+                  setSidebarFilters((pre) => ({ ...pre, [ele]: null }))
+                }
               >
                 <p className="font-semibold">
-                  Max Price {sidebarFilters.maxPrice}
+                  {ele}:{sidebarFilters[ele]}
                 </p>
 
                 <RxCross2 className="text-red-600" />
               </div>
-            )}
-          {detalKeys.map(
-            (ele, ind) =>
-              sidebarFilters[ele] && (
-                <div
-                  key={ind}
-                  className="px-2 py-1 rounded-md dark:text-white text-2xl items-center flex gap-2 cursor-pointer border"
-                  onClick={() =>
-                    setSidebarFilters((pre) => ({ ...pre, [ele]: null }))
-                  }
-                >
-                  <p className="font-semibold">{sidebarFilters[ele]}</p>
-
-                  <RxCross2 className="text-red-600" />
-                </div>
-              )
-          )}
-        </div>
-        {/* end show and hide sidebar */}
+            )
+        )}
+      </div>
+      {/* end show and hide sidebar */}
+      <div className="grid-cols-10 mt-14 grid">
         {/* sidebar */}
         <div
           className={`${
@@ -312,7 +300,7 @@ function Product({ cat }) {
             />
           </div>
           {showFilters.showCategory && (
-            <div className="colors-in-product flex flex-col max-h-[40vh] overflow-hidden overflow-y-auto gap-3 ">
+            <div className="colors-in-product  flex flex-col max-h-[40vh] overflow-hidden overflow-y-auto gap-3 ">
               {productfilteringData[cat].categories.map((ele, ind) => (
                 <div
                   key={ind}
@@ -482,71 +470,81 @@ function Product({ cat }) {
         </div>
         {/* end sidebar */}
         {/* main area */}
-        <div
-          className={`${
-            filter ? "col-span-8" : "col-span-10"
-          } overflow-hidden  overflow-y-auto product-category colors-in-product`}
-        >
-          <div className="flex flex-wrap p-6 gap-5">
-            {filterProduct.map((ele) =>
-              filter ? (
-                <Card key={ele._id} product={ele} />
-              ) : (
-                <BigCards key={ele._id} product={ele}></BigCards>
-              )
-            )}
+        {filterProduct.length > 0 ? (
+          <div className={`${filter ? "col-span-8" : "col-span-10"}`}>
+            <p className="text-lg px-10">
+              {total[total.length - 1]} Item's Match
+            </p>
+            <div
+              className={` overflow-hidden  overflow-y-auto product-category colors-in-product`}
+            >
+              <div className="flex flex-wrap p-6 gap-5">
+                {filterProduct.map((ele) =>
+                  filter ? (
+                    <Card key={ele._id} product={ele} />
+                  ) : (
+                    <BigCards key={ele._id} product={ele}></BigCards>
+                  )
+                )}
+              </div>
+              {total.length > 1 && (
+                <>
+                  <div className="flex mx-7 my-4 relative items-center justify-center dark:text-white">
+                    {slot !== 0 && (
+                      <button
+                        onClick={() => accessLastOrFirdtProduct("F")}
+                        className="border absolute left-10 button-transition border-slate-800 rounded-md hover:bg-gradient-to-tl hover:from-purple-950 hover:via-blue-800 hover:border-white dark:hover:border-slate-900 hover:to-pink-900 hover:text-white px-4 py-1"
+                      >
+                        First Page
+                      </button>
+                    )}
+
+                    <div className="flex gap-2">
+                      {slot > 3 && (
+                        <div className="mr-5 text-center pb-4">....</div>
+                      )}
+                      {total.map(
+                        (ele, ind) =>
+                          ind < slot + 4 &&
+                          ind > slot - 4 && (
+                            <button
+                              key={ele}
+                              onClick={() => accessMoreProduct(ele, ind)}
+                              className={`border button-transition border-slate-800 rounded-md hover:bg-slate-300 dark:hover:bg-gray-900 px-4 py-1 ${
+                                slot === ind
+                                  ? "bg-slate-300 dark:bg-gray-900"
+                                  : ""
+                              }`}
+                            >
+                              {ind + 1}
+                            </button>
+                          )
+                      )}
+                    </div>
+                    {slot !== total.length - 1 && (
+                      <button
+                        onClick={() => accessLastOrFirdtProduct("L")}
+                        className="border absolute right-10 button-transition border-slate-800 rounded-md hover:bg-gradient-to-tl hover:from-purple-950 hover:via-blue-800 hover:border-white dark:hover:border-slate-900 hover:to-pink-900 hover:text-white px-4 py-1"
+                      >
+                        Last Page
+                      </button>
+                    )}
+                    {total.length >= 8 && slot < total.length - 4 && (
+                      <div className="ml-5 text-center pb-4">....</div>
+                    )}
+                  </div>
+
+                  <div className="dark:text-white mb-20 text-center">
+                    {slot + 1} out of {total.length}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-          {total.length > 1 && (
-            <>
-              <div className="flex mx-7 my-4 relative items-center justify-center dark:text-white">
-                {slot !== 0 && (
-                  <button
-                    onClick={() => accessLastOrFirdtProduct("F")}
-                    className="border absolute left-10 button-transition border-slate-800 rounded-md hover:bg-gradient-to-tl hover:from-purple-950 hover:via-blue-800 hover:border-white dark:hover:border-slate-900 hover:to-pink-900 hover:text-white px-4 py-1"
-                  >
-                    First Page
-                  </button>
-                )}
+        ) : (
+          <div>No product found</div>
+        )}
 
-                <div className="flex gap-2">
-                  {slot > 3 && (
-                    <div className="mr-5 text-center pb-4">....</div>
-                  )}
-                  {total.map(
-                    (ele, ind) =>
-                      ind < slot + 4 &&
-                      ind > slot - 4 && (
-                        <button
-                          key={ele}
-                          onClick={() => accessMoreProduct(ele, ind)}
-                          className={`border button-transition border-slate-800 rounded-md hover:bg-slate-300 dark:hover:bg-gray-900 px-4 py-1 ${
-                            slot === ind ? "bg-slate-300 dark:bg-gray-900" : ""
-                          }`}
-                        >
-                          {ind + 1}
-                        </button>
-                      )
-                  )}
-                </div>
-                {slot !== total.length - 1 && (
-                  <button
-                    onClick={() => accessLastOrFirdtProduct("L")}
-                    className="border absolute right-10 button-transition border-slate-800 rounded-md hover:bg-gradient-to-tl hover:from-purple-950 hover:via-blue-800 hover:border-white dark:hover:border-slate-900 hover:to-pink-900 hover:text-white px-4 py-1"
-                  >
-                    Last Page
-                  </button>
-                )}
-                {total.length >= 8 && slot < total.length - 4 && (
-                  <div className="ml-5 text-center pb-4">....</div>
-                )}
-              </div>
-
-              <div className="dark:text-white mb-20 text-center">
-                {slot + 1} out of {total.length}
-              </div>
-            </>
-          )}
-        </div>
         {/* end main area */}
       </div>
     </>

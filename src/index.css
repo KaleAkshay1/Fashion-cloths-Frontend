@@ -42,3 +42,13 @@ input[type="number"]::-webkit-outer-spin-button {
 .bg-dark{
     background: rgb(10,10,10);
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  

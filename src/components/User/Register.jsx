@@ -4,10 +4,15 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { updateEmail } from "../../shope/email";
+import { toast } from "react-toastify";
+import OTPField from "./OTPField";
 
 function Register() {
   const [pass, setPass] = useState(true);
-  const username = useRef("");
+  const [showOtp, setShowOtp] = useState(false);
+  const firstName = useRef("");
+  const lastName = useRef("");
+  const phone = useRef("");
   const password = useRef("");
   const email = useRef("");
   const navigate = useNavigate();
@@ -18,67 +23,104 @@ function Register() {
     try {
       e.preventDefault();
       const data = await axios.post("/api/user/register", {
-        username: username.current.value,
+        firstName: firstName.current.value,
+        lastName: lastName.current.value,
+        phone: phone.current.value,
         email: email.current.value,
         password: password.current.value,
       });
       if (data?.data?.data?.data === true) {
         dispatch(updateEmail(data?.data?.data?.email));
-        navigate("/enterOtp");
+        setShowOtp(true);
       }
     } catch (error) {
-      alert(error?.response?.data?.message);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  const findOtpCode = async (otp) => {
+    console.log(otp);
+    try {
+      const out = await axios.post("/api/user/check-otp", {
+        otp,
+      });
+      if (out?.data?.data) {
+        navigate("/login");
+      }
+    } catch (error) {
+      alert(error?.response?.data.message);
     }
   };
   return (
     <>
-      <div className="min-h-[75vh] m-5 flex justify-center items-center">
-        <div className="bg-white min-w-[30vw] min-h-[50vh] p-8 rounded-md shadow-lg dark:shadow-slate-600">
+      <div className="min-h-[90vh] flex justify-center items-center bg-cover bg-center">
+        <div className="brightness-50 absolute top-16 h-[110vh] inset-0">
+          <img
+            src="./1slider3.jpg"
+            alt="background"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="bg-white z-10 relative my-5 min-w-[30vw] min-h-[50vh] p-8 rounded-md shadow-lg dark:shadow-slate-600 ">
           <h2 className="text-3xl font-semibold text-center text-gray-800 mb-4">
             Sign Up
           </h2>
           <form onSubmit={formSubmit} className="space-y-4 mt-10 flex flex-col">
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                ref={username}
-                name="username"
-                className="my-2 px-4 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-200"
-              />
+            <div className="flex gap-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  ref={firstName}
+                  placeholder="Enter First Name"
+                  className="my-2 px-4 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-200"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  ref={lastName}
+                  placeholder="Enter Last Name"
+                  className="my-2 px-4 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-200"
+                />
+              </div>
             </div>
+
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 Email
               </label>
               <input
-                type="email"
-                id="email"
                 ref={email}
                 name="email"
+                placeholder="Enter Eamil Id"
                 className="my-2 px-4 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-200"
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Mobile Number
+              </label>
+              <input
+                ref={phone}
+                placeholder="Enter Mobile Number"
+                className="my-2 px-4 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-200"
+              />
+            </div>
+
             <div className="relative">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <input
                 type={pass ? "password" : "text"}
-                id="password"
-                name="password"
+                placeholder="Enter a Password"
                 ref={password}
                 className="my-2 px-4 py-2 pr-10 w-full rounded-md border-gray-900 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-200"
               />
@@ -110,6 +152,9 @@ function Register() {
           </form>
         </div>
       </div>
+      {showOtp && (
+        <OTPField setShowOtp={setShowOtp} findOtpCode={findOtpCode} />
+      )}
     </>
   );
 }

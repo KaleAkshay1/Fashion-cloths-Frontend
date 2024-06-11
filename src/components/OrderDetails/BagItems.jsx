@@ -115,8 +115,8 @@ function BagItems() {
         );
         const jsonResponse = validationResponse.data.data;
         console.log("validation responce", jsonResponse);
-        dispatch(addDataInBag(jsonResponse.cartData));
-        dispatch(addDataInOrder(jsonResponse.cartData));
+        dispatch(addDataInBag(jsonResponse.cartData.items));
+        dispatch(addDataInOrder(jsonResponse.orderData));
       },
       prefill: {
         name: user.username,
