@@ -36,14 +36,11 @@ function AdminProductCard({ item }) {
                 <div className="my-2">
                   <p className="font-semibold text-xl">Description:</p>
                   {edit ? (
-                    <textarea type="text" />
+                    <textarea type="text" value={item.descriptions} />
                   ) : (
-                    <textarea
-                      type="text"
-                      className="outline-none ml-10 w-[80%]"
-                      readOnly
-                      value={item.descriptions}
-                    />
+                    <p className="outline-none text-lg ml-10 w-[80%]">
+                      {item.descriptions}
+                    </p>
                   )}
                 </div>
                 <div className="flex justify-between">
@@ -99,6 +96,38 @@ function AdminProductCard({ item }) {
                       value={item.priceInfo.finalPrice}
                     />
                   )}
+                </div>
+              </div>
+
+              <div className="col-span-4 my-10">
+                {Object.keys(item.sizes).map((ele, ind) => {
+                  return (
+                    <>
+                      <div className="flex justify-around mb-3">
+                        <p className="font-semibold text-lg">{ele}</p>
+                        {!edit ? (
+                          <p>{item.sizes[ele]}</p>
+                        ) : (
+                          <input
+                            type="text"
+                            className="w-20"
+                            value={item.sizes[ele]}
+                          />
+                        )}
+                      </div>
+                    </>
+                  );
+                })}
+                <div className="flex mt-5 flex-col gap-5">
+                  <button
+                    className="px-5 mx-10 p-2 rounded-lg border-2 text-purple-700 font-semibold border-purple-700 hover:bg-purple-700 hover:text-white"
+                    onClick={() => setEdit((pre) => !pre)}
+                  >
+                    Edit Details
+                  </button>
+                  <button className="px-5 mx-10 p-2 rounded-lg border-2 text-red-700 font-semibold border-red-700 hover:bg-red-700 hover:text-white">
+                    Delete Item
+                  </button>
                 </div>
               </div>
 
